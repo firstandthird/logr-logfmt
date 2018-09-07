@@ -27,7 +27,8 @@ exports.log = function(options, tags, logStatement) {
   const obj = typeof logStatement === 'object' ? flat(logStatement, 2) : '';
   let objStr = '';
   Object.keys(obj).forEach(key => {
-    objStr = `${objStr} ${key}=${obj[key]}`;
+    const val = typeof obj[key] === 'string' ? `"${obj[key]}"` : obj[key];
+    objStr = `${objStr} ${key}=${val}`;
   });
   const out = `${level}${msg}${tag}${objStr}`;
   return out;
