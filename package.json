@@ -1,6 +1,6 @@
 {
   "name": "logr-logfmt",
-  "version": "3.2.2",
+  "version": "0.0.1",
   "description": "plugin for logr that posts tags and log message to logfmt",
   "main": "index.js",
   "scripts": {
