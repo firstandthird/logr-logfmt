@@ -119,3 +119,32 @@ test('logfmt plugin will convert object to keys up to 2 levels deep', (t) => {
   t.match(logs[0], 'level=INFO obj.key=a blah.foo=test 123 debug=1');
   t.end();
 });
+
+test('logfmt plugin will display all features together correctly', (t) => {
+  const oldConsole = console.log;
+  const logs = [];
+  console.log = (data) => {
+    logs.push(data);
+  };
+  const log = Logr.createLogger({
+    type: 'logfmt',
+    reporters: {
+      logfmt: {
+        reporter: logrFmt
+      }
+    }
+  });
+  log(['error', 'tag1', 'tag2'], {
+    message: 'a log statement',
+    obj: {
+      key: 'a'
+    },
+    blah: {
+      foo: 'test 123'
+    },
+    debug: 1
+  });
+  console.log = oldConsole;
+  t.match(logs[0], 'level=ERROR msg="a log statement" tag="tag1,tag2" obj.key=a blah.foo=test 123 debug=1');
+  t.end();
+});
