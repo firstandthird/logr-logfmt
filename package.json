@@ -1,0 +1,37 @@
+{
+  "name": "logr-logfmt",
+  "version": "3.2.2",
+  "description": "plugin for logr that posts tags and log message to logfmt",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "npm run lint && tap --cov ./test/logfmt.test.js"
+  },
+  "keywords": [
+    "logr",
+    "logfmt"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/firstandthird/logr-logfmt.git"
+  },
+  "author": "First+Third",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/firstandthird/logr-logfmt/issues"
+  },
+  "eslintConfig": {
+    "extends": "firstandthird"
+  },
+  "homepage": "https://github.com/firstandthird/logr-logfmt#readme",
+  "devDependencies": {
+    "eslint": "^4.15.0",
+    "eslint-config-firstandthird": "^4.3.0",
+    "eslint-plugin-import": "^2.8.0",
+    "logr": "^2.7.0",
+    "tap": "^11.0.1"
+  },
+  "dependencies": {
+    "flat": "^4.1.0"
+  }
+}
