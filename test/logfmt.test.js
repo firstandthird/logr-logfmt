@@ -167,7 +167,18 @@ test('logfmt plugin will escape doublequotes and strip newlines from the message
 
 here are some other things
 `);
+  log({ message: `MongoClient connection created for {"url":"http://example.com&authSource=user","decorate":true}
+
+here are some other things
+` });
+  log({ msg: `MongoClient connection created for {"url":"http://example.com&authSource=user","decorate":true}
+
+here are some other things
+` });
+
   console.log = oldConsole;
   t.match(logs[0], 'msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
+  t.match(logs[1], 'msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
+  t.match(logs[2], 'msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
   t.end();
 });
