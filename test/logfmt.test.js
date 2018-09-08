@@ -149,7 +149,7 @@ test('logfmt plugin will display all features together correctly', (t) => {
   t.end();
 });
 
-test('logfmt plugin will escape doublequotes and strip newlines from the message', (t) => {
+test('logfmt plugin will turn doublequotes to single and strip newlines from the message', (t) => {
   const oldConsole = console.log;
   const logs = [];
   console.log = (data) => {
@@ -163,14 +163,17 @@ test('logfmt plugin will escape doublequotes and strip newlines from the message
       }
     }
   });
+
   log(`MongoClient connection created for {"url":"http://example.com&authSource=user","decorate":true}
 
 here are some other things
 `);
+
   log({ message: `MongoClient connection created for {"url":"http://example.com&authSource=user","decorate":true}
 
 here are some other things
 ` });
+
   log({ msg: `MongoClient connection created for {"url":"http://example.com&authSource=user","decorate":true}
 
 here are some other things
