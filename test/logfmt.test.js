@@ -148,3 +148,26 @@ test('logfmt plugin will display all features together correctly', (t) => {
   t.match(logs[0], 'level=ERROR msg="a log statement" tag="tag1,tag2" obj.key="a" blah.foo="test 123" debug=1');
   t.end();
 });
+
+test('logfmt plugin will escape doublequotes and strip newlines from the message', (t) => {
+  const oldConsole = console.log;
+  const logs = [];
+  console.log = (data) => {
+    logs.push(data);
+  };
+  const log = Logr.createLogger({
+    type: 'logfmt',
+    reporters: {
+      logfmt: {
+        reporter: logrFmt
+      }
+    }
+  });
+  log(`MongoClient connection created for {"url":"http://example.com&authSource=user","decorate":true}
+
+here are some other things
+`);
+  console.log = oldConsole;
+  t.match(logs[0], 'msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
+  t.end();
+});

@@ -14,12 +14,12 @@ exports.log = function(options, tags, logStatement) {
   }
   let msg = '';
   if (typeof logStatement === 'string') {
-    msg = ` msg="${logStatement}"`;
+    msg = ` msg="${logStatement.replace(/"/g, '\'')}"`;
   } else if (logStatement.msg) {
-    msg = ` msg="${logStatement.msg}"`;
+    msg = ` msg="${logStatement.msg.replace(/"/g, '\'')}"`;
     delete logStatement.msg;
   } else if (logStatement.message) {
-    msg = ` msg="${logStatement.message}"`;
+    msg = ` msg="${logStatement.message.replace(/"/g, '\'')}"`;
     delete logStatement.message;
   }
   const miscTags = tags.filter(r => !['debug', 'warning', 'error', 'fatal'].includes(r));
@@ -30,6 +30,6 @@ exports.log = function(options, tags, logStatement) {
     const val = typeof obj[key] === 'string' ? `"${obj[key]}"` : obj[key];
     objStr = `${objStr} ${key}=${val}`;
   });
-  const out = `${level}${msg}${tag}${objStr}`;
+  const out = `${level}${msg}${tag}${objStr}`.replace(/[\r\n]+/g, ' ');
   return out;
 };
