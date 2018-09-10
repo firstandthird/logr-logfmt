@@ -22,9 +22,14 @@ exports.log = function(options, tags, logStatement) {
     msg = ` msg="${logStatement.message.replace(/"/g, '\'')}"`;
     delete logStatement.message;
   }
+  Object.keys(logStatement).forEach(k => {
+    if (typeof logStatement[k] === 'string') {
+      logStatement[k] = logStatement[k].replace(/"/g, '\'');
+    }
+  });
   const miscTags = tags.filter(r => !['debug', 'warning', 'error', 'fatal'].includes(r));
   const tag = miscTags.length > 0 ? ` tag="${miscTags.join(',')}"` : '';
-  const obj = typeof logStatement === 'object' ? flat(logStatement, 2) : '';
+  const obj = typeof logStatement === 'object' ? flat(logStatement, { maxDepth: 2 }) : '';
   let objStr = '';
   Object.keys(obj).forEach(key => {
     const val = typeof obj[key] === 'string' ? `"${obj[key]}"` : obj[key];

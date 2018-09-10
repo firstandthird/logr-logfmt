@@ -91,7 +91,6 @@ test('logfmt plugin can convert other tags to the logfmt "tag" key', (t) => {
   t.match(logs[0], 'level=INFO msg="a log statement" tag="tag1,tag2,tag3"');
   t.end();
 });
-
 test('logfmt plugin will convert object to keys up to 2 levels deep', (t) => {
   const oldConsole = console.log;
   const logs = [];
@@ -115,8 +114,20 @@ test('logfmt plugin will convert object to keys up to 2 levels deep', (t) => {
     },
     debug: 1
   });
+  log({
+    level1: {
+      level2: {
+        level3: {
+          level4: {
+            key1: 'hi'
+          }
+        }
+      }
+    },
+  });
   console.log = oldConsole;
   t.match(logs[0], 'level=INFO obj.key="a" blah.foo="test 123" debug=1');
+  t.match(logs[1], 'level=INFO level1.level2=[object Object]');
   t.end();
 });
 
@@ -149,7 +160,7 @@ test('logfmt plugin will display all features together correctly', (t) => {
   t.end();
 });
 
-test('logfmt plugin will turn doublequotes to single and strip newlines from the message', (t) => {
+test('logfmt plugin will turn doublequotes to single and strip newlines', (t) => {
   const oldConsole = console.log;
   const logs = [];
   console.log = (data) => {
@@ -174,7 +185,7 @@ here are some other things
 here are some other things
 ` });
 
-  log({ msg: `MongoClient connection created for {"url":"http://example.com&authSource=user","decorate":true}
+  log({ key: `MongoClient connection created for {"url":"http://example.com&authSource=user","decorate":true}
 
 here are some other things
 ` });
@@ -182,6 +193,6 @@ here are some other things
   console.log = oldConsole;
   t.match(logs[0], 'msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
   t.match(logs[1], 'msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
-  t.match(logs[2], 'msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
+  t.match(logs[2], 'key="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
   t.end();
 });
