@@ -14,6 +14,7 @@ exports.log = function(options, tags, logStatement) {
   }
   const miscTags = tags.filter(r => !['debug', 'warning', 'error', 'fatal'].includes(r));
   const tag = miscTags.length > 0 ? ` tag="${miscTags.join(',')}"` : '';
+  // flatten the object to a maximum depth of 2:
   const obj = typeof logStatement === 'object' ? flat(logStatement, { maxDepth: 2 }) : '';
   let objStr = '';
   Object.keys(obj).forEach(key => {
