@@ -12,29 +12,33 @@ exports.log = function(options, tags, logStatement) {
   } else if (tags.includes('debug')) {
     level = 'level=DEBUG';
   }
-  let msg = '';
-  if (typeof logStatement === 'string') {
-    msg = ` msg="${logStatement.replace(/"/g, '\'')}"`;
-  } else if (logStatement.msg) {
-    msg = ` msg="${logStatement.msg.replace(/"/g, '\'')}"`;
-    delete logStatement.msg;
-  } else if (logStatement.message) {
-    msg = ` msg="${logStatement.message.replace(/"/g, '\'')}"`;
-    delete logStatement.message;
-  }
-  Object.keys(logStatement).forEach(k => {
-    if (typeof logStatement[k] === 'string') {
-      logStatement[k] = logStatement[k].replace(/"/g, '\'');
-    }
-  });
   const miscTags = tags.filter(r => !['debug', 'warning', 'error', 'fatal'].includes(r));
   const tag = miscTags.length > 0 ? ` tag="${miscTags.join(',')}"` : '';
   const obj = typeof logStatement === 'object' ? flat(logStatement, { maxDepth: 2 }) : '';
   let objStr = '';
   Object.keys(obj).forEach(key => {
-    const val = typeof obj[key] === 'string' ? `"${obj[key]}"` : obj[key];
-    objStr = `${objStr} ${key}=${val}`;
+    if (typeof obj[key] === 'string') {
+      obj[key] = obj[key].replace(/"/g, '\'');
+    }
+    // msg or message are special fields that will be dealt with below:
+    if (key === 'msg' || key === 'message') {
+      return;
+    }
+    const val = typeof obj[key] === 'string' ? `"${obj[key]}"` : JSON.stringify(obj[key]);
+    objStr = `${objStr} ${key}=${typeof val === 'object' ? val : val}`;
   });
+  let msg = '';
+  // also if there is a message/msg field, use that for the logfmt msg field:
+  // if logStatement was a string just use that string as the logfmt msg:
+  if (obj.msg) {
+    msg = ` msg="${obj.msg}"`;
+    delete obj.msg;
+  } else if (obj.message) {
+    msg = ` msg="${obj.message}"`;
+    delete obj.message;
+  } else if (typeof logStatement === 'string') {
+    msg = ` msg="${logStatement.replace(/"/g, '\'')}"`;
+  }
   const out = `${level}${msg}${tag}${objStr}`.replace(/[\r\n]+/g, ' ');
   return out;
 };
