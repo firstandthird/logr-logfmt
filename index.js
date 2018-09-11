@@ -1,4 +1,5 @@
 const flat = require('flat');
+const safeJson = require('json-stringify-safe');
 
 exports.log = function(options, tags, logStatement) {
   // assign the level key, by default it will be INFO:
@@ -25,7 +26,18 @@ exports.log = function(options, tags, logStatement) {
     if (key === 'msg' || key === 'message') {
       return;
     }
-    const val = typeof obj[key] === 'string' ? `"${obj[key]}"` : JSON.stringify(obj[key]);
+    let val;
+    switch (typeof obj[key]) {
+      case 'string':
+        val = `"${obj[key]}"`;
+        break;
+      case 'object':
+        val = safeJson(obj[key]);
+        break;
+      default:
+        val = obj[key];
+        break;
+    }
     objStr = `${objStr} ${key}=${typeof val === 'object' ? val : val}`;
   });
   let msg = '';
