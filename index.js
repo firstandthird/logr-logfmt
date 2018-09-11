@@ -26,7 +26,7 @@ exports.log = function(options, tags, logStatement) {
     if (key === 'msg' || key === 'message') {
       return;
     }
-    const val = typeof obj[key] === 'object' ? safeJson(obj[key]) : `"${obj[key]}"`;
+    const val = typeof obj[key] === 'object' ? `"${safeJson(obj[key]).replace(/"/g, '\'')}"` : `"${obj[key]}"`;
     objStr = `${objStr} ${key}=${val}`;
   });
   let msg = '';

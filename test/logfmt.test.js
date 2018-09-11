@@ -128,7 +128,7 @@ test('logfmt plugin will convert object to keys up to 2 levels deep', (t) => {
   });
   console.log = oldConsole;
   t.match(logs[0], 'level=INFO obj.key="a" blah.foo="test 123" debug="1"');
-  t.match(logs[1], 'level=INFO level1.level2={"level3":{"level4":{"key1":"hi"}}}');
+  t.match(logs[1], 'level=INFO level1.level2="{\'level3\':{\'level4\':{\'key1\':\'hi\'}}}"');
   t.end();
 });
 
@@ -162,7 +162,7 @@ test('logfmt plugin will display strings, numbers, booleans and circular objects
     debug: 1
   });
   console.log = oldConsole;
-  t.match(logs[0], 'level=ERROR msg="a log statement" tag="tag1,tag2" number="1234.23" bool="false" magellan.magellan={"magellan":"[Circular ~]"} obj.key="a" blah.foo="test 123" debug="1"');
+  t.match(logs[0], 'level=ERROR msg="a log statement" tag="tag1,tag2" number="1234.23" bool="false" magellan.magellan="{\'magellan\':\'[Circular ~]\'}" obj.key="a" blah.foo="test 123" debug="1"');
   t.end();
 });
 
@@ -229,5 +229,25 @@ here are some other things
   t.match(logs[0], 'msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
   t.match(logs[1], 'msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
   t.match(logs[2], 'key="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
+  t.end();
+});
+
+test('logfmt plugin can convert other tags to the logfmt "tag" key', (t) => {
+  const oldConsole = console.log;
+  const logs = [];
+  console.log = (data) => {
+    logs.push(data);
+  };
+  const log = Logr.createLogger({
+    type: 'logfmt',
+    reporters: {
+      logfmt: {
+        reporter: logrFmt
+      }
+    }
+  });
+  log(['error'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  console.log = oldConsole;
+  t.match(logs[0], 'level=ERROR msg="testing123" tag.test="{\'test\':\'123\'}"');
   t.end();
 });
