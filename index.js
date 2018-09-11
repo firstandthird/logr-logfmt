@@ -38,7 +38,7 @@ exports.log = function(options, tags, logStatement) {
         val = obj[key];
         break;
     }
-    objStr = `${objStr} ${key}=${typeof val === 'object' ? val : val}`;
+    objStr = `${objStr} ${key}=${val}`;
   });
   let msg = '';
   // also if there is a message/msg field, use that for the logfmt msg field:
