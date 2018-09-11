@@ -127,7 +127,7 @@ test('logfmt plugin will convert object to keys up to 2 levels deep', (t) => {
     },
   });
   console.log = oldConsole;
-  t.match(logs[0], 'level=INFO obj.key="a" blah.foo="test 123" debug=1');
+  t.match(logs[0], 'level=INFO obj.key="a" blah.foo="test 123" debug="1"');
   t.match(logs[1], 'level=INFO level1.level2={"level3":{"level4":{"key1":"hi"}}}');
   t.end();
 });
@@ -162,7 +162,7 @@ test('logfmt plugin will display strings, numbers, booleans and circular objects
     debug: 1
   });
   console.log = oldConsole;
-  t.match(logs[0], 'level=ERROR msg="a log statement" tag="tag1,tag2" number="1234.23" bool=false magellan.magellan={"magellan":"[Circular ~]"} obj.key="a" blah.foo="test 123" debug=1');
+  t.match(logs[0], 'level=ERROR msg="a log statement" tag="tag1,tag2" number="1234.23" bool="false" magellan.magellan={"magellan":"[Circular ~]"} obj.key="a" blah.foo="test 123" debug="1"');
   t.end();
 });
 
@@ -191,7 +191,7 @@ test('logfmt plugin will display all features together correctly', (t) => {
     debug: 1
   });
   console.log = oldConsole;
-  t.match(logs[0], 'level=ERROR msg="a log statement" tag="tag1,tag2" obj.key="a" blah.foo="test 123" debug=1');
+  t.match(logs[0], 'level=ERROR msg="a log statement" tag="tag1,tag2" obj.key="a" blah.foo="test 123" debug="1"');
   t.end();
 });
 
