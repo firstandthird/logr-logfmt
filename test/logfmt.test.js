@@ -64,11 +64,10 @@ test('logfmt plugin can convert mesage content to the logfmt "msg" key', (t) => 
   log({ message: 'a log statement' });
   log({ notAMEssage: 'not a log statement' });
   console.log = oldConsole;
-  t.match(logs.length, 4, 'prints all tags');
-  t.match(logs[0], 'level=INFO msg="a log statement"');
-  t.match(logs[1], 'level=INFO msg="a log statement"');
-  t.match(logs[2], 'level=INFO msg="a log statement"');
-  t.notMatch(logs[3], 'level=INFO msg="a log statement"');
+  t.match(logs, ['level=INFO msg="a log statement"',
+    'level=INFO msg="a log statement"',
+    'level=INFO msg="a log statement"',
+    'level=INFO \u001b[34mnotAMEssage\u001b[39m="\u001b[37mnot a log statement\u001b[39m"']);
   t.end();
 });
 
@@ -88,7 +87,7 @@ test('logfmt plugin can convert other tags to the logfmt "tag" key', (t) => {
   });
   log(['tag1', 'tag2', 'tag3'], 'a log statement');
   console.log = oldConsole;
-  t.match(logs[0], 'level=INFO msg="a log statement" tag="tag1,tag2,tag3"');
+  t.match(logs, ['level=INFO msg="a log statement" tag="\u001b[90mtag1\u001b[39m,\u001b[90mtag2\u001b[39m,\u001b[90mtag3\u001b[39m"']);
   t.end();
 });
 
@@ -127,8 +126,8 @@ test('logfmt plugin will convert object to keys up to 2 levels deep', (t) => {
     },
   });
   console.log = oldConsole;
-  t.match(logs[0], 'level=INFO obj.key="a" blah.foo="test 123" debug="1"');
-  t.match(logs[1], 'level=INFO level1.level2="{\'level3\':{\'level4\':{\'key1\':\'hi\'}}}"');
+  t.match(logs, ['level=INFO \u001b[34mobj.key\u001b[39m="\u001b[37ma\u001b[39m" \u001b[34mblah.foo\u001b[39m="\u001b[37mtest 123\u001b[39m" \u001b[34mdebug\u001b[39m="\u001b[37m1\u001b[39m"',
+    'level=INFO \u001b[34mlevel1.level2\u001b[39m="\u001b[37m{\'level3\':{\'level4\':{\'key1\':\'hi\'}}}\u001b[39m"']);
   t.end();
 });
 
@@ -162,7 +161,7 @@ test('logfmt plugin will display strings, numbers, booleans and circular objects
     debug: 1
   });
   console.log = oldConsole;
-  t.match(logs[0], 'level=ERROR msg="a log statement" tag="tag1,tag2" number="1234.23" bool="false" magellan.magellan="{\'magellan\':\'[Circular ~]\'}" obj.key="a" blah.foo="test 123" debug="1"');
+  t.match(logs, ['level=ERROR msg="a log statement" tag="\u001b[90merror\u001b[39m,\u001b[90mtag1\u001b[39m,\u001b[90mtag2\u001b[39m" \u001b[34mnumber\u001b[39m="\u001b[37m1234.23\u001b[39m" \u001b[34mbool\u001b[39m="\u001b[37mfalse\u001b[39m" \u001b[34mmagellan.magellan\u001b[39m="\u001b[37m{\'magellan\':\'[Circular ~]\'}\u001b[39m" \u001b[34mobj.key\u001b[39m="\u001b[37ma\u001b[39m" \u001b[34mblah.foo\u001b[39m="\u001b[37mtest 123\u001b[39m" \u001b[34mdebug\u001b[39m="\u001b[37m1\u001b[39m"']);
   t.end();
 });
 
@@ -191,7 +190,7 @@ test('logfmt plugin will display all features together correctly', (t) => {
     debug: 1
   });
   console.log = oldConsole;
-  t.match(logs[0], 'level=ERROR msg="a log statement" tag="tag1,tag2" obj.key="a" blah.foo="test 123" debug="1"');
+  t.match(logs, ['level=ERROR msg="a log statement" tag="\u001b[90merror\u001b[39m,\u001b[90mtag1\u001b[39m,\u001b[90mtag2\u001b[39m" \u001b[34mobj.key\u001b[39m="\u001b[37ma\u001b[39m" \u001b[34mblah.foo\u001b[39m="\u001b[37mtest 123\u001b[39m" \u001b[34mdebug\u001b[39m="\u001b[37m1\u001b[39m"']);
   t.end();
 });
 
@@ -226,9 +225,10 @@ here are some other things
 ` });
 
   console.log = oldConsole;
-  t.match(logs[0], 'msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
-  t.match(logs[1], 'msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
-  t.match(logs[2], 'key="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "');
+  t.match(logs, ['level=INFO msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "',
+    'level=INFO msg="MongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things "',
+    'level=INFO \u001b[34mkey\u001b[39m="\u001b[37mMongoClient connection created for {\'url\':\'http://example.com&authSource=user\',\'decorate\':true} here are some other things \u001b[39m"']
+  );
   t.end();
 });
 
@@ -248,6 +248,34 @@ test('logfmt plugin can convert other tags to the logfmt "tag" key', (t) => {
   });
   log(['error'], { msg: 'testing123', tag: { test: { test: '123' } } });
   console.log = oldConsole;
-  t.match(logs[0], 'level=ERROR msg="testing123" tag.test="{\'test\':\'123\'}"');
+  t.match(logs[0], 'level=ERROR msg="testing123" tag="\u001b[90merror\u001b[39m" \u001b[34mtag.test\u001b[39m="\u001b[37m{\'test\':\'123\'}\u001b[39m"');
+  t.end();
+});
+
+test('logfmt plugin can display ansi colors', (t) => {
+  const oldConsole = console.log;
+  const logs = [];
+  console.log = (data) => {
+    logs.push(data);
+  };
+  const log = Logr.createLogger({
+    type: 'logfmt',
+    reporters: {
+      logfmt: {
+        reporter: logrFmt,
+        options: {
+          appColor: true,
+          tagColors: {
+            redpaint: 'red'
+          }
+        }
+      }
+    }
+  });
+  log(['color1', 'gray1', 'gray2', 'redpaint'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  log(['color2', 'gray1', 'gray2', 'redpaint'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  t.match(logs, ['level=INFO msg="testing123" tag="\u001b[32mcolor1\u001b[39m,\u001b[90mgray1\u001b[39m,\u001b[90mgray2\u001b[39m,\u001b[31mredpaint\u001b[39m" \u001b[34mtag.test\u001b[39m="\u001b[37m{\'test\':\'123\'}\u001b[39m"',
+    'level=INFO msg="testing123" tag="\u001b[33mcolor2\u001b[39m,\u001b[90mgray1\u001b[39m,\u001b[90mgray2\u001b[39m,\u001b[31mredpaint\u001b[39m" \u001b[34mtag.test\u001b[39m="\u001b[37m{\'test\':\'123\'}\u001b[39m"']);
+  console.log = oldConsole;
   t.end();
 });

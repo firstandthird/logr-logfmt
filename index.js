@@ -1,7 +1,28 @@
 const flat = require('flat');
 const safeJson = require('json-stringify-safe');
-
-exports.log = function(options, tags, logStatement) {
+const chalk = require('chalk');
+const defaults = {
+  appColor: false,
+  tagColors: {},
+  theme: {
+    keys: 'blue',
+    values: 'white',
+    tags: 'gray'
+  }
+};
+const appColors = {};
+const availableColors = [
+  'green',
+  'yellow',
+  'blue',
+  'magenta',
+  'cyan',
+  'red'
+];
+let lastColorIndex = 0;
+exports.log = function(config, tags, logStatement) {
+  const options = Object.assign({}, defaults, config);
+  const colors = new chalk.constructor({ enabled: true });
   // assign the level key, by default it will be INFO:
   let level = 'level=INFO';
   if (tags.includes('fatal')) {
@@ -13,8 +34,28 @@ exports.log = function(options, tags, logStatement) {
   } else if (tags.includes('debug')) {
     level = 'level=DEBUG';
   }
+  tags.forEach((tag, i) => {
+    let color = options.tagColors[tag];
+    if (i === 0 && options.appColor) {
+      if (!appColors[tag]) {
+        appColors[tag] = availableColors[lastColorIndex];
+        lastColorIndex++;
+        if (lastColorIndex > availableColors.length - 1) {
+          lastColorIndex = 0;
+        }
+      }
+      color = appColors[tag];
+    }
+    tags[i] = (color) ? colors[color](tag) : colors[options.theme.tags](tag);
+  });
   const miscTags = tags.filter(r => !['debug', 'warning', 'error', 'fatal'].includes(r));
-  const tag = miscTags.length > 0 ? ` tag="${miscTags.join(',')}"` : '';
+  const tag = miscTags.length > 0 ? ` tag="${miscTags.map(t => {
+    if (options.tagColors[t]) {
+      console.log(options.tagColors[t]);
+      return colors[options.tagColors[t]](t);
+    }
+    return t;
+  }).join(',')}"` : '';
   // flatten the object to a maximum depth of 2:
   const obj = typeof logStatement === 'object' ? flat(logStatement, { maxDepth: 2 }) : '';
   let objStr = '';
@@ -23,8 +64,9 @@ exports.log = function(options, tags, logStatement) {
     if (key === 'msg' || key === 'message') {
       return;
     }
-    const val = typeof obj[key] === 'object' ? safeJson(obj[key]) : obj[key].toString();
-    objStr = `${objStr} ${key}="${val.replace(/"/g, '\'')}"`;
+    let val = typeof obj[key] === 'object' ? safeJson(obj[key]) : obj[key].toString();
+    val = colors[options.theme.values](val);
+    objStr = `${objStr} ${colors[options.theme.keys](key)}="${val.replace(/"/g, '\'')}"`;
   });
   let msg = '';
   // also if there is a message/msg field, use that for the logfmt msg field:
