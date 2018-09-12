@@ -23,20 +23,21 @@ exports.log = function(options, tags, logStatement) {
     if (key === 'msg' || key === 'message') {
       return;
     }
-    const val = typeof obj[key] === 'object' ? safeJson(obj[key]) : obj[key];
-    objStr = `${objStr} ${key}="${typeof val === 'string' ? val.replace(/"/g, '\'') : val}"`;
+    const val = typeof obj[key] === 'object' ? safeJson(obj[key]) : obj[key].toString();
+    objStr = `${objStr} ${key}="${val.replace(/"/g, '\'')}"`;
   });
   let msg = '';
   // also if there is a message/msg field, use that for the logfmt msg field:
   // if logStatement was a string just use that string as the logfmt msg:
   if (obj.msg) {
-    msg = ` msg="${obj.msg.replace(/"/g, '\'')}"`;
-    delete obj.msg;
+    msg = obj.msg;
   } else if (obj.message) {
-    msg = ` msg="${obj.message.replace(/"/g, '\'')}"`;
-    delete obj.message;
+    msg = obj.message;
   } else if (typeof logStatement === 'string') {
-    msg = ` msg="${logStatement.replace(/"/g, '\'')}"`;
+    msg = logStatement;
+  }
+  if (msg) {
+    msg = ` msg="${msg.replace(/"/g, '\'')}"`;
   }
   const out = `${level}${msg}${tag}${objStr}`.replace(/[\r\n]+/g, ' ');
   return out;
