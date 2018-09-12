@@ -34,23 +34,25 @@ exports.log = function(config, tags, logStatement) {
   } else if (tags.includes('debug')) {
     level = 'level=DEBUG';
   }
-  tags.forEach((tag, i) => {
-    let color = options.tagColors[tag];
-    if (i === 0 && options.appColor) {
-      if (!appColors[tag]) {
-        appColors[tag] = availableColors[lastColorIndex];
-        lastColorIndex++;
-        if (lastColorIndex > availableColors.length - 1) {
-          lastColorIndex = 0;
+  if (options.appColor) {
+    tags.forEach((tag, i) => {
+      let color = options.tagColors[tag];
+      if (i === 0 && options.appColor) {
+        if (!appColors[tag]) {
+          appColors[tag] = availableColors[lastColorIndex];
+          lastColorIndex++;
+          if (lastColorIndex > availableColors.length - 1) {
+            lastColorIndex = 0;
+          }
         }
+        color = appColors[tag];
       }
-      color = appColors[tag];
-    }
-    tags[i] = (color) ? colors[color](tag) : colors[options.theme.tags](tag);
-  });
+      tags[i] = (color) ? colors[color](tag) : colors[options.theme.tags](tag);
+    });
+  }
   const miscTags = tags.filter(r => !['debug', 'warning', 'error', 'fatal'].includes(r));
   const tag = miscTags.length > 0 ? ` tag="${miscTags.map(t => {
-    if (options.tagColors[t]) {
+    if (options.appColor && options.tagColors[t]) {
       return colors[options.tagColors[t]](t);
     }
     return t;
@@ -64,8 +66,8 @@ exports.log = function(config, tags, logStatement) {
       return;
     }
     let val = typeof obj[key] === 'object' ? safeJson(obj[key]) : obj[key].toString();
-    val = colors[options.theme.values](val);
-    objStr = `${objStr} ${colors[options.theme.keys](key)}="${val.replace(/"/g, '\'')}"`;
+    val = options.appColor ? colors[options.theme.values](val) : val;
+    objStr = `${objStr} ${options.appColor ? colors[options.theme.keys](key) : key}="${val.replace(/"/g, '\'')}"`;
   });
   let msg = '';
   // also if there is a message/msg field, use that for the logfmt msg field:
