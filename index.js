@@ -51,7 +51,6 @@ exports.log = function(config, tags, logStatement) {
   const miscTags = tags.filter(r => !['debug', 'warning', 'error', 'fatal'].includes(r));
   const tag = miscTags.length > 0 ? ` tag="${miscTags.map(t => {
     if (options.tagColors[t]) {
-      console.log(options.tagColors[t]);
       return colors[options.tagColors[t]](t);
     }
     return t;
