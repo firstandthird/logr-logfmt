@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
-    "test": "npm run lint && tap --cov ./test/logfmt.test.js"
+    "test": "npm run lint && tap --cov ./test/*.test.js"
   },
   "keywords": [
     "logr",
