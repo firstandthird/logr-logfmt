@@ -252,7 +252,7 @@ test('logfmt plugin can convert other tags to the logfmt "tag" key', (t) => {
   t.end();
 });
 
-test('logfmt plugin can display ansi colors', (t) => {
+test('logfmt plugin will only colorize if "color" is true', (t) => {
   const oldConsole = console.log;
   const logs = [];
   console.log = (data) => {
@@ -265,6 +265,64 @@ test('logfmt plugin can display ansi colors', (t) => {
         reporter: logrFmt,
         options: {
           appColor: true,
+          tagColors: {
+            redpaint: 'red'
+          }
+        }
+      }
+    }
+  });
+  log(['color1', 'gray1', 'gray2', 'redpaint'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  log(['color2', 'gray1', 'gray2', 'redpaint'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  t.match(logs, ['level=INFO msg="testing123" tag="color1,gray1,gray2,redpaint" tag.test="{\'test\':\'123\'}"',
+    'level=INFO msg="testing123" tag="color2,gray1,gray2,redpaint" tag.test="{\'test\':\'123\'}"']);
+  console.log = oldConsole;
+  t.end();
+});
+
+test('logfmt plugin can display ansi colors when color is true', (t) => {
+  const oldConsole = console.log;
+  const logs = [];
+  console.log = (data) => {
+    logs.push(data);
+  };
+  const log = Logr.createLogger({
+    type: 'logfmt',
+    reporters: {
+      logfmt: {
+        reporter: logrFmt,
+        options: {
+          color: true,
+          tagColors: {
+            redpaint: 'red'
+          }
+        }
+      }
+    }
+  });
+  log(['color1', 'gray1', 'gray2', 'redpaint'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  log(['color2', 'gray1', 'gray2', 'redpaint'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  t.match(logs, ['level=INFO msg="testing123" tag="color1,gray1,gray2,\u001b[31mredpaint\u001b[39m" \u001b[34mtag.test\u001b[39m="\u001b[37m{\'test\':\'123\'}\u001b[39m"',
+    'level=INFO msg="testing123" tag="color2,gray1,gray2,\u001b[31mredpaint\u001b[39m" \u001b[34mtag.test\u001b[39m="\u001b[37m{\'test\':\'123\'}\u001b[39m"']);
+  console.log = oldConsole;
+  t.end();
+});
+
+test('logfmt plugin can display color and appColor together', (t) => {
+  const oldConsole = console.log;
+  const logs = [];
+  console.log = (data) => {
+    oldConsole(data);
+    logs.push(data);
+  };
+  const log = Logr.createLogger({
+    type: 'logfmt',
+    reporters: {
+      logfmt: {
+        reporter: logrFmt,
+        options: {
+          appColor: true,
+          color: true,
           tagColors: {
             redpaint: 'red'
           }

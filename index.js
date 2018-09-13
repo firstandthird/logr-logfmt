@@ -4,8 +4,9 @@ const chalk = require('chalk');
 const aug = require('aug');
 
 const defaults = {
-  appColor: false,
-  tagColors: {},
+  color: false, // set to true to apply color theme
+  appColor: false, // set to true to auto-colorize the first tag
+  tagColors: {}, // assign a color to a specific tag
   theme: {
     keys: 'blue',
     values: 'white',
@@ -24,7 +25,7 @@ const availableColors = [
 let lastColorIndex = 0;
 exports.log = function(config, tags, logStatement) {
   const options = aug(defaults, config);
-  const colors = new chalk.constructor({ enabled: true });
+  const colors = new chalk.constructor({ enabled: options.color });
   // assign the level key, by default it will be INFO:
   let level = 'level=INFO';
   if (tags.includes('fatal')) {
@@ -54,7 +55,7 @@ exports.log = function(config, tags, logStatement) {
   }
   const miscTags = tags.filter(r => !['debug', 'warning', 'error', 'fatal'].includes(r));
   const tag = miscTags.length > 0 ? ` tag="${miscTags.map(t => {
-    if (options.appColor && options.tagColors[t]) {
+    if (options.tagColors[t]) {
       return colors[options.tagColors[t]](t);
     }
     return t;
@@ -68,8 +69,8 @@ exports.log = function(config, tags, logStatement) {
       return;
     }
     let val = typeof obj[key] === 'object' ? safeJson(obj[key]) : obj[key].toString();
-    val = options.appColor ? colors[options.theme.values](val) : val;
-    objStr = `${objStr} ${options.appColor ? colors[options.theme.keys](key) : key}="${val.replace(/"/g, '\'')}"`;
+    val = colors[options.theme.values](val);
+    objStr = `${objStr} ${colors[options.theme.keys](key)}="${val.replace(/"/g, '\'')}"`;
   });
   let msg = '';
   // also if there is a message/msg field, use that for the logfmt msg field:
