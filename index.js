@@ -1,6 +1,8 @@
 const flat = require('flat');
 const safeJson = require('json-stringify-safe');
 const chalk = require('chalk');
+const aug = require('aug');
+
 const defaults = {
   appColor: false,
   tagColors: {},
@@ -21,7 +23,7 @@ const availableColors = [
 ];
 let lastColorIndex = 0;
 exports.log = function(config, tags, logStatement) {
-  const options = Object.assign({}, defaults, config);
+  const options = aug(defaults, config);
   const colors = new chalk.constructor({ enabled: true });
   // assign the level key, by default it will be INFO:
   let level = 'level=INFO';
