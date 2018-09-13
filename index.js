@@ -5,10 +5,15 @@ const aug = require('aug');
 
 const defaults = {
   color: process.env.LOGR_COLOR === 'true', // set to apply the color theme
-  appColor: false, // set to true to auto-colorize the first tag
-  tagColors: {}, // assign a color to a specific tag
+  appColor: true, // set to true to auto-colorize the first tag
+  tagColors: {
+    error: 'bgRed',
+    warning: 'bgYellow',
+    success: 'bgGreen',
+    notice: 'bgBlue'
+  }, // assign a color to a specific tag
   theme: {
-    keys: 'blue',
+    keys: 'cyan',
     values: 'white',
     tags: 'gray'
   }
