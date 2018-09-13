@@ -312,7 +312,6 @@ test('logfmt plugin will assign a color to the first tag if color and appColor a
   const oldConsole = console.log;
   const logs = [];
   console.log = (data) => {
-    oldConsole(data);
     logs.push(data);
   };
   const log = Logr.createLogger({
