@@ -4,7 +4,7 @@ const chalk = require('chalk');
 const aug = require('aug');
 
 const defaults = {
-  color: false, // set to true to apply color theme
+  color: process.env.LOGR_COLOR === 'true', // set to apply the color theme
   appColor: true, // set to true to auto-colorize the first tag
   tagColors: {
     error: 'bgRed',
@@ -27,6 +27,7 @@ const availableColors = [
   'cyan',
   'red'
 ];
+
 let lastColorIndex = 0;
 exports.log = function(config, tags, logStatement) {
   const options = aug(defaults, config);
