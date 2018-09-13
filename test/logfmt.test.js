@@ -280,7 +280,7 @@ test('logfmt plugin will only colorize if "color" is true', (t) => {
   t.end();
 });
 
-test('logfmt plugin can display ansi colors when color is true', (t) => {
+test('logfmt plugin will display ansi colors when color is true', (t) => {
   const oldConsole = console.log;
   const logs = [];
   console.log = (data) => {
@@ -308,7 +308,7 @@ test('logfmt plugin can display ansi colors when color is true', (t) => {
   t.end();
 });
 
-test('logfmt plugin can display color and appColor together', (t) => {
+test('logfmt plugin will assign a color to the first tag if color and appColor are both true', (t) => {
   const oldConsole = console.log;
   const logs = [];
   console.log = (data) => {
