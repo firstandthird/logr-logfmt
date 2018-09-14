@@ -336,3 +336,27 @@ test('logfmt plugin will assign a color to the first tag if color and appColor a
   console.log = oldConsole;
   t.end();
 });
+
+test('logfmt plugin can handle undefined object keys', (t) => {
+  const oldConsole = console.log;
+  const logs = [];
+  console.log = (data) => {
+    logs.push(data);
+  };
+  const log = Logr.createLogger({
+    type: 'logfmt',
+    reporters: {
+      logfmt: {
+        reporter: logrFmt
+      }
+    }
+  });
+  log(['debug'], {
+    val1: 'a value!',
+    val2: undefined,
+    val3: null
+  });
+  console.log = oldConsole;
+  t.match(logs, ['level=DEBUG val1="a value!" val2="undefined" val3="null"']);
+  t.end();
+});
