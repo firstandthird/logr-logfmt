@@ -74,6 +74,9 @@ exports.log = function(config, tags, logStatement) {
     if (key === 'msg' || key === 'message') {
       return;
     }
+    if (obj[key] === undefined) {
+      obj[key] = 'undefined';
+    }
     let val = typeof obj[key] === 'object' ? safeJson(obj[key]) : obj[key].toString();
     val = colors[options.theme.values](val);
     objStr = `${objStr} ${colors[options.theme.keys](key)}="${val.replace(/"/g, '\'')}"`;
