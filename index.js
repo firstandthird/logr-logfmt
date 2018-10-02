@@ -31,6 +31,9 @@ const availableColors = [
 let lastColorIndex = 0;
 exports.log = function(config, tags, logStatement) {
   const options = aug(defaults, config);
+  if (process.env.LOGR_LOGFMT_THEME === false || process.env.LOGR_LOGFMT_THEME === 'false') {
+    options.theme = false;
+  }
   const colors = new chalk.constructor({ enabled: options.color });
   // assign the level key, by default it will be INFO:
   let level = 'level=INFO';
@@ -56,7 +59,11 @@ exports.log = function(config, tags, logStatement) {
         }
         color = appColors[tag];
       }
-      tags[i] = (color) ? colors[color](tag) : colors[options.theme.tags](tag);
+      if (options.theme === false) {
+        tags[i] = tag;
+      } else {
+        tags[i] = (color) ? colors[color](tag) : colors[options.theme.tags](tag);
+      }
     });
   }
   const miscTags = tags.filter(r => !['debug', 'warning', 'error', 'fatal'].includes(r));
@@ -78,8 +85,9 @@ exports.log = function(config, tags, logStatement) {
       obj[key] = 'undefined';
     }
     let val = typeof obj[key] === 'object' ? safeJson(obj[key]) : obj[key].toString();
-    val = colors[options.theme.values](val);
-    objStr = `${objStr} ${colors[options.theme.keys](key)}="${val.replace(/"/g, '\'')}"`;
+    val = options.theme === false ? val : colors[options.theme.values](val);
+    const keyString = options.theme === false ? key : colors[options.theme.keys](key);
+    objStr = `${objStr} ${keyString}="${val.replace(/"/g, '\'')}"`;
   });
   let msg = '';
   // also if there is a message/msg field, use that for the logfmt msg field:

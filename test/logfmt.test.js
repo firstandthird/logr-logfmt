@@ -360,3 +360,56 @@ test('logfmt plugin can handle undefined object keys', (t) => {
   t.match(logs, ['level=DEBUG val1="a value!" val2="undefined" val3="null"']);
   t.end();
 });
+
+test('when theme is false do not apply colors to tags/keys', t => {
+  const oldConsole = console.log;
+  const logs = [];
+  console.log = (data) => {
+    logs.push(data);
+  };
+  const log = Logr.createLogger({
+    type: 'logfmt',
+    reporters: {
+      logfmt: {
+        reporter: logrFmt,
+        options: {
+          color: true,
+          theme: false
+        }
+      }
+    }
+  });
+  log(['color1', 'gray1', 'gray2', 'redpaint'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  log(['color2', 'gray1', 'gray2', 'redpaint'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  console.log = oldConsole;
+  t.match(logs, ['level=INFO msg="testing123" tag="color1,gray1,gray2,redpaint" tag.test="{\'test\':\'123\'}"',
+    'level=INFO msg="testing123" tag="color2,gray1,gray2,redpaint" tag.test="{\'test\':\'123\'}"']);
+  t.end();
+});
+
+test('when LOGR_LOGFMT_THEME is false do not apply colors to tags/keys', t => {
+  process.env.LOGR_LOGFMT_THEME = false;
+  const oldConsole = console.log;
+  const logs = [];
+  console.log = (data) => {
+    logs.push(data);
+  };
+  const log = Logr.createLogger({
+    type: 'logfmt',
+    reporters: {
+      logfmt: {
+        reporter: logrFmt,
+        options: {
+          color: true,
+        }
+      }
+    }
+  });
+  log(['color1', 'gray1', 'gray2', 'redpaint'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  log(['color2', 'gray1', 'gray2', 'redpaint'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  console.log = oldConsole;
+  t.match(logs, ['level=INFO msg="testing123" tag="color1,gray1,gray2,redpaint" tag.test="{\'test\':\'123\'}"',
+    'level=INFO msg="testing123" tag="color2,gray1,gray2,redpaint" tag.test="{\'test\':\'123\'}"']);
+  delete process.env.LOGR_LOGFMT_THEME;
+  t.end();
+});
