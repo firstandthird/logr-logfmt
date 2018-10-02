@@ -413,3 +413,65 @@ test('when LOGR_LOGFMT_THEME is false do not apply colors to tags/keys', t => {
   delete process.env.LOGR_LOGFMT_THEME;
   t.end();
 });
+
+test('when LOGR_LOGFMT_THEME is false still apply tagColors and appColors', t => {
+  process.env.LOGR_LOGFMT_THEME = false;
+  const oldConsole = console.log;
+  const logs = [];
+  console.log = (data) => {
+    logs.push(data);
+  };
+  const log = Logr.createLogger({
+    type: 'logfmt',
+    appColor: true,
+    reporters: {
+      logfmt: {
+        reporter: logrFmt,
+        options: {
+          appColor: true,
+          color: true,
+          tagColors: {
+            redpaint: 'red'
+          }
+        }
+      }
+    }
+  });
+  log(['color1', 'gray1', 'gray2', 'redpaint'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  log(['color2', 'gray1', 'gray2', 'redpaint'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  console.log = oldConsole;
+  t.match(logs, ['level=INFO msg="testing123" tag="color1,gray1,gray2,\u001b[31mredpaint\u001b[39m" tag.test="{\'test\':\'123\'}"',
+    'level=INFO msg="testing123" tag="color2,gray1,gray2,\u001b[31mredpaint\u001b[39m" tag.test="{\'test\':\'123\'}"']);
+  delete process.env.LOGR_LOGFMT_THEME;
+  t.end();
+});
+
+test('use tagColor instead of theme', t => {
+  const oldConsole = console.log;
+  const logs = [];
+  console.log = (data) => {
+    logs.push(data);
+  };
+  const log = Logr.createLogger({
+    type: 'logfmt',
+    appColor: true,
+    reporters: {
+      logfmt: {
+        reporter: logrFmt,
+        options: {
+          appColor: true,
+          color: true,
+          tagColors: {
+            warning: 'red'
+          }
+        }
+      }
+    }
+  });
+  log(['color1', 'gray1', 'gray2', 'warning'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  log(['color2', 'gray1', 'gray2', 'warning'], { msg: 'testing123', tag: { test: { test: '123' } } });
+  console.log = oldConsole;
+  t.match(logs, ['level=WARN msg="testing123" tag="\u001b[35mcolor1\u001b[39m,\u001b[90mgray1\u001b[39m,\u001b[90mgray2\u001b[39m,\u001b[31mwarning\u001b[39m" \u001b[36mtag.test\u001b[39m="\u001b[37m{\'test\':\'123\'}\u001b[39m"',
+    'level=WARN msg="testing123" tag="\u001b[36mcolor2\u001b[39m,\u001b[90mgray1\u001b[39m,\u001b[90mgray2\u001b[39m,\u001b[31mwarning\u001b[39m" \u001b[36mtag.test\u001b[39m="\u001b[37m{\'test\':\'123\'}\u001b[39m"']);
+  t.end();
+});

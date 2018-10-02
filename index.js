@@ -35,6 +35,20 @@ exports.log = function(config, tags, logStatement) {
     options.theme = false;
   }
   const colors = new chalk.constructor({ enabled: options.color });
+
+  const showValue = (string, themeElement, override) => {
+    // no color if theme is false:
+    if (options.theme === false) {
+      return string;
+    }
+    // if an override color was passed use that:
+    if (override) {
+      return colors[override](string);
+    }
+    // othewrsie use the theme color:
+    return colors[options.theme[themeElement]](string);
+  };
+
   // assign the level key, by default it will be INFO:
   let level = 'level=INFO';
   if (tags.includes('fatal')) {
@@ -59,11 +73,7 @@ exports.log = function(config, tags, logStatement) {
         }
         color = appColors[tag];
       }
-      if (options.theme === false) {
-        tags[i] = tag;
-      } else {
-        tags[i] = (color) ? colors[color](tag) : colors[options.theme.tags](tag);
-      }
+      tags[i] = showValue(tag, 'tags', color);
     });
   }
   const miscTags = tags.filter(r => !['debug', 'warning', 'error', 'fatal'].includes(r));
@@ -85,8 +95,8 @@ exports.log = function(config, tags, logStatement) {
       obj[key] = 'undefined';
     }
     let val = typeof obj[key] === 'object' ? safeJson(obj[key]) : obj[key].toString();
-    val = options.theme === false ? val : colors[options.theme.values](val);
-    const keyString = options.theme === false ? key : colors[options.theme.keys](key);
+    val = showValue(val, 'values');
+    const keyString = showValue(key, 'keys');
     objStr = `${objStr} ${keyString}="${val.replace(/"/g, '\'')}"`;
   });
   let msg = '';
