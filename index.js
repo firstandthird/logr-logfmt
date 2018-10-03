@@ -73,7 +73,12 @@ exports.log = function(config, tags, logStatement) {
         }
         color = appColors[tag];
       }
-      tags[i] = showValue(tag, 'tags', color);
+      // always apply the appColors or tagColors if told to:
+      if (color && options.color) {
+        tags[i] = colors[color](tag);
+      } else {
+        tags[i] = showValue(tag, 'tags', color);
+      }
     });
   }
   const miscTags = tags.filter(r => !['debug', 'warning', 'error', 'fatal'].includes(r));
