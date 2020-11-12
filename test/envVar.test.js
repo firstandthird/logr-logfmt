@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 process.env.LOGR_COLOR = 'true';
 const Logr = require('logr');
 const logrFmt = require('../index.js');
