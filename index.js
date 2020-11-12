@@ -34,7 +34,7 @@ exports.log = function(config, tags, logStatement) {
   if (process.env.LOGR_LOGFMT_THEME === false || process.env.LOGR_LOGFMT_THEME === 'false') {
     options.theme = false;
   }
-  const colors = new chalk.constructor({ enabled: options.color });
+  const colors = new chalk.Instance({ level: (options.color ? 1 : 0) });
 
   const showValue = (string, themeElement, override) => {
     // no color if theme is false:
